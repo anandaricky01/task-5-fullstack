@@ -26,12 +26,4 @@ class LoginApiController extends Controller {
         ]);
     }
 
-    public function users(){
-        $users = User::all();
-        return response()->json($users);
-    }
-
-    public function index(){
-        return response()->json('test');
-    }
 }

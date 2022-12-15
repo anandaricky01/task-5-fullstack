@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArticleApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginApiController;
@@ -19,5 +20,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/v1/login', [LoginApiController::class, 'login']);
-Route::middleware('auth:api')->get('/v1/all', [LoginApiController::class, 'users']);
+Route::group(['prefix' => 'v1'], function() {
+    Route::post('/login', [LoginApiController::class, 'login']);
+    Route::group(['middleware' => 'auth:api'], function() {
+        Route::resource('article', ArticleApiController::class);
+    });
+});
+
