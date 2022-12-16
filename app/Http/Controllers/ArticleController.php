@@ -172,4 +172,11 @@ class ArticleController extends Controller
             return redirect('/article/create')->with('danger', 'Hanya boleh menggunakan ekstensi tersedia!');
         }
     }
+
+    public function myPost(){
+        $article = Article::where('user_id', Auth::user()->id)->paginate(6)->withQueryString();
+        return view('articles.mypost', [
+            'articles' => $article
+        ]);
+    }
 }

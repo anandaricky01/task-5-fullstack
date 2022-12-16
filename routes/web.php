@@ -21,4 +21,5 @@ use Illuminate\Support\Facades\Route;
 Auth::routes();
 // Route::get('/login')->name('login');
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/article/mypost', [ArticleController::class, 'myPost']);
 Route::resource('article', ArticleController::class);
