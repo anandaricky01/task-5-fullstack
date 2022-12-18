@@ -6,7 +6,11 @@
         <div class="col-md-8">
 
             <div class="card">
-                <div class="card-header">{{ __('All Posts') }} <a class="ms-2 btn btn-success btn-sm" href="/article/create">+ create post</a></div>
+                <div class="card-header">{{ __('All Posts') }}
+                    @if (!auth()->guest())
+                        <a class="ms-2 btn btn-success btn-sm" href="/article/create">+ create post</a>
+                    @endif
+                </div>
 
                 <div class="card-body">
                     @if ($articles->count() > 0)

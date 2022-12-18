@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\User;
 
 class CategoryFactory extends Factory
 {
@@ -14,7 +15,8 @@ class CategoryFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->word()
+            'name' => $this->faker->word(),
+            'user_id' => $this->faker->numberBetween(1, User::count()),
         ];
     }
 }

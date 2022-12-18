@@ -20,7 +20,7 @@ class ArticleFactory extends Factory
             'user_id' => $this->faker->numberBetween(1, User::count()),
             'category_id' => $this->faker->numberBetween(1, Category::count()),
             'content' => $this->faker->paragraphs(3, true),
-            'image' => $this->faker->sentence()
+            'image' => 'forget-me-not flower field.png'
         ];
     }
 }

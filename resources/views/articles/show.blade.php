@@ -9,13 +9,15 @@
                 <div class="card-header">
                     {{ $article->title }}
                     <a href="/article" class="ms-3 btn btn-secondary btn-sm">Back</a>
-                    @if ($article->user_id == auth()->user()->id)
-                    <a href="/article/{{ $article->id }}/edit" class="btn btn-warning btn-sm">Edit</a>
-                    <a class="btn btn-danger btn-sm" href="/article/{{ $article->id }}"
-                        onclick="event.preventDefault();
-                        document.getElementById('delete').submit();">
-                        Delete
-                    </a>
+                    @if (!auth()->guest())
+                        @if ($article->user_id == auth()->user()->id)
+                        <a href="/article/{{ $article->id }}/edit" class="btn btn-warning btn-sm">Edit</a>
+                        <a class="btn btn-danger btn-sm" href="/article/{{ $article->id }}"
+                            onclick="event.preventDefault();
+                            document.getElementById('delete').submit();">
+                            Delete
+                        </a>
+                        @endif
                     @endif
 
                     <form id="delete" action="/article/{{ $article->id }}" method="POST" class="d-none">
