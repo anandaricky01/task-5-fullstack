@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\File;
 
 class ArticleApiController extends Controller
 {
@@ -15,6 +16,13 @@ class ArticleApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    public function __construct()
+    {
+        $this->middleware('auth:api')->except(['index', 'show']);
+        $this->path = public_path() . "\img\\";
+    }
+
     public function index()
     {
         try {
@@ -43,35 +51,42 @@ class ArticleApiController extends Controller
     public function store(Request $request)
     {
 
-            $validated = Validator::make($request->all(), [
-                'title' => 'required',
-                'content' => 'required',
-                'image' => 'nullable',
-                'category_id' => 'required|numeric'
+        $validated = Validator::make($request->all(), [
+            'title' => 'required',
+            'content' => 'required',
+            'image' => 'required|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
+            'category_id' => 'required|numeric'
+        ]);
+
+        $file = $request->file('image');
+
+        $filename = md5($file->getClientOriginalName()) . md5(microtime(false)) . "." . $file->getClientOriginalExtension();
+
+        if ($validated->fails()) {
+            return response()->json(['message' => $validated->errors()], 422);
+        }
+
+        try {
+            $file->move($this->path, $filename);
+            $article = Article::create([
+                'title' => $request->title,
+                'content' => $request->content,
+                'image' => $filename,
+                'category_id' => $request->category_id,
+                'user_id' => Auth::user()->id
             ]);
 
-            if($validated->fails()){
-                return response()->json(['message' => $validated->errors()], 422);
-            }
+            $response = [
+                'data' => $article,
+                'message' => 'Data has been created!',
+                'status' => true,
+                'code' => 201
+            ];
 
-            // insert the user_id into the $request array
-            $request['user_id'] = Auth::user()->id;
-
-            try {
-                $article = Article::create($request->all());
-                $response = [
-                    'data' => $article,
-                    'message' => 'Data has been created!',
-                    'status' => true,
-                    'code' => 201
-                ];
-
-                return response()->json($response, $response['code']);
-            } catch (QueryException $e) {
-                return response()->json(['message' => $e->errorInfo]);
-            }
-
-
+            return response()->json($response, $response['code']);
+        } catch (QueryException $e) {
+            return response()->json(['message' => $e->errorInfo]);
+        }
     }
 
     /**
@@ -91,7 +106,6 @@ class ArticleApiController extends Controller
             ];
 
             return response()->json($response, $response['code']);
-
         } catch (QueryException $e) {
             return response()->json(['message' => $e->errorInfo]);
         }
@@ -116,16 +130,31 @@ class ArticleApiController extends Controller
         $validated = Validator::make($request->all(), [
             'title' => 'required',
             'content' => 'required',
-            'image' => 'nullable',
+            'image' => 'nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
             'category_id' => 'required|numeric'
         ]);
 
-        if($validated->fails()){
+        if ($validated->fails()) {
             return response()->json(['message' => $validated->errors()], 422);
         }
+        $file = $request->file('image');
+        $old_path = $this->path . $article->image;
+
+        if($request->file('image')){
+            File::delete($old_path);
+            $filename = md5($file->getClientOriginalName()) . md5(microtime(false)) . "." . $file->getClientOriginalExtension();
+            $file->move($this->path, $filename);
+        } else {
+            $filename = $article->image;
+        };
 
         try {
-            $article->update($request->all());
+            $article->update([
+                'title' => $request->title,
+            'content' => $request->content,
+            'image' => $filename,
+            'category_id' => $request->category_id
+            ]);
             $response = [
                 'message' => 'transaction update',
                 'data' => $article,

@@ -22,8 +22,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::group(['prefix' => 'v1'], function() {
     Route::post('/login', [LoginApiController::class, 'login']);
-    Route::group(['middleware' => 'auth:api'], function() {
-        Route::resource('article', ArticleApiController::class);
+    Route::group(['prefix' => 'article'], function(){
+        Route::get('/', [ArticleApiController::class, 'index']);
+        Route::post('/', [ArticleApiController::class, 'store']);
+        Route::get('/{article}', [ArticleApiController::class, 'show']);
+        Route::put('/{article}', [ArticleApiController::class, 'update']);
+        Route::delete('/{article}', [ArticleApiController::class, 'destroy']);
     });
 });
 
